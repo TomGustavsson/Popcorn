@@ -19,6 +19,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -41,9 +42,19 @@ fun ExploreRowPreview() {
 }
 @Composable
 fun ExploreRow(list: List<Api.Movie>){
-  LazyRow(modifier = Modifier.wrapContentHeight()){
-    items(list){ movie ->
-      ExploreItem(movie)
+  Column(Modifier.background(Colors.popBlack)){
+    Text(text = "Popular movies",
+      fontFamily = Fonts.popFont,
+      fontWeight = FontWeight.W400,
+      fontSize = 16.sp,
+      color = Colors.popWhite,
+      modifier = Modifier.padding(4.dp)
+    )
+    LazyRow(modifier = Modifier
+      .wrapContentHeight()){
+      items(list){ movie ->
+        ExploreItem(movie)
+      }
     }
   }
 }
@@ -53,9 +64,9 @@ fun ExploreItem(movie: Api.Movie){
   Card(
     modifier = Modifier
       .width(100.dp)
-      .height(200.dp)
-      .padding(start = 4.dp, end = 4.dp),
-    backgroundColor = Colors.popBlack,
+      .height(230.dp)
+      .padding(4.dp),
+    backgroundColor = Colors.popLighDark,
     elevation = 2.dp,
     shape = RoundedCornerShape(2.dp)
   ) {
@@ -70,13 +81,21 @@ fun ExploreItem(movie: Api.Movie){
           modifier = Modifier.fillMaxSize()
         )
       }
+      DrawableInText(
+        end = false,
+        drawableRes = R.drawable.ic_star,
+        drawableColor = Colors.popRed,
+        textColor = Colors.popGreySpecialDark,
+        text = "7.9",
+        modifier = Modifier.padding(start = 2.dp)
+      )
       Text(
         text = movie.title,
         fontFamily = Fonts.popFont,
-        fontWeight = FontWeight.W100,
+        fontWeight = FontWeight.W200,
         fontSize = 8.sp,
         color = Colors.popWhite,
-        modifier = Modifier.padding(top = 2.dp, end = 6.dp, start = 6.dp),
+        modifier = Modifier.padding(end = 3.dp, start = 3.dp),
         maxLines = 2
       )
     }

@@ -30,7 +30,12 @@ val Typography = Typography(
 )
 
 object Fonts {
+
   val popFont = FontFamily(
-    Font(R.font.pop_regular, FontWeight.W100)
+    Font(R.font.heebo_extra_light, FontWeight.W100),
+    Font(R.font.heebo_light, FontWeight.W200),
+    Font(R.font.heebo_regular, FontWeight.W300),
+    Font(R.font.heebo_semi_bold, FontWeight.W400),
+
   )
 }
