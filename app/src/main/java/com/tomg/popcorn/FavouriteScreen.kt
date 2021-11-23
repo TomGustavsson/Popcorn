@@ -1,6 +1,7 @@
 package com.tomg.popcorn
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -65,7 +66,7 @@ fun FavouritePreview(){
 
 @Composable
 fun FavouriteScreen(favourites: List<Favourite>){
-  LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)){
+  LazyColumn(modifier = Modifier.fillMaxSize().background(Colors.popWhite), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)){
     items(favourites){ favourite ->
       FavouriteRow(favourite)
     }

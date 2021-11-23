@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Popcorn</string>
+    <string name="explore">Explore</string>
+    <string name="favourites">Favourites</string>
 </resources>

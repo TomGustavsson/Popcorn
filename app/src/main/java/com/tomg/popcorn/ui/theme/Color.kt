@@ -10,4 +10,6 @@ object Colors {
 
   val popWhite = Color(0xFFFFFFFF)
   val popRed = Color(0xFFE3000B)
+  val popBlack = Color(0xFF000000)
+  val popLighDark = Color(0XFF242319)
 }
