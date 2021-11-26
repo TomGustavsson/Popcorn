@@ -24,11 +24,19 @@ object Api {
   data class Movie(
     @Json(name = "id") val id: String,
     @Json(name = "original_title") val title: String,
-    @Json(name = "Year") val year: String,
-    @Json(name = "backdrop_path") val backdrop: String,
-    @Json(name = "genre_ids") val genres: List<Int>,
-    @Json(name = "poster_path") val poster: String,
-    @Json(name = "vote_average") val rating: String,
-    @Json(name = "vote_count") val votes: String
+    @field:Json(name="backdrop_path")
+    val backdrop: String,
+    @field:Json(name="genre_ids")
+    val genres: List<Int>,
+    @field:Json(name="poster_path")
+    val poster: String,
+    @field:Json(name="vote_average")
+    val rating: String,
+    @field:Json(name="vote_count")
+    val votes: String,
+    @field:Json(name="release_date")
+    val releaseDate: String,
+    @field:Json(name="overview")
+    val overview: String
     )
 }

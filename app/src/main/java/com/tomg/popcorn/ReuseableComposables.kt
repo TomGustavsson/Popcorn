@@ -1,23 +1,46 @@
 package com.tomg.popcorn
 
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusModifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.annotation.ExperimentalCoilApi
+import coil.compose.rememberImagePainter
 import com.tomg.popcorn.ui.theme.Colors
 import com.tomg.popcorn.ui.theme.Fonts
 
@@ -45,7 +68,8 @@ fun DrawableInText(
   textColor: Color = Colors.popWhite,
   fontFamily: FontFamily = Fonts.popFont,
   fontWeight: FontWeight = FontWeight.W300,
-  fontSize: TextUnit = 8.sp
+  fontSize: TextUnit = 10.sp,
+  iconSize: TextUnit = 16.sp
 ) {
   val myId = "inlineContent"
   val textWithIcon = buildAnnotatedString {
@@ -53,7 +77,6 @@ fun DrawableInText(
       append(text)
       appendInlineContent(myId, "[icon]")
     } else {
-      /** icon at start **/
       /** icon at start **/
       appendInlineContent(myId, "[icon]")
       append(text)
@@ -63,8 +86,8 @@ fun DrawableInText(
   val inlineContent = mapOf(
     Pair(myId, InlineTextContent(
       Placeholder(
-        width = 16.sp,
-        height = 16.sp,
+        width = iconSize,
+        height = iconSize,
         placeholderVerticalAlign = PlaceholderVerticalAlign.Center
       )
     ) {
@@ -85,4 +108,39 @@ fun DrawableInText(
     color = textColor,
     modifier = modifier
   )
+}
+
+@ExperimentalCoilApi
+@Composable
+fun LoadImageWithUrl(width: Int, height: Int, url: String){
+  Box {
+    CircularProgressIndicator(color = Colors.popRed, modifier = Modifier.align(Alignment.Center))
+    Image(
+      painter = rememberImagePainter(
+        data = url,
+        builder = {
+          error(R.drawable.ic_placeholder_image)
+        }),
+      contentScale = ContentScale.Crop,
+      contentDescription = null,
+      modifier = Modifier
+        .height(height.dp)
+        .width(width.dp)
+        .align(Alignment.CenterStart)
+    )
+  }
+}
+
+class MyFirstShape : Shape {
+  override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline {
+    val trianglePath = Path().apply {
+      // Moves to top center position
+      moveTo(size.width / 2f, 0f)
+      // Add line to right corner above circle
+      lineTo(x = size.width, y = size.height)
+      //Add line to left corner above circle
+      lineTo(x = 0f, y = size.height)
+    }
+    return Outline.Generic(path = trianglePath)
+  }
 }

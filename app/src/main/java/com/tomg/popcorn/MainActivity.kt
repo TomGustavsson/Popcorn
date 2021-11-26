@@ -1,9 +1,7 @@
 package com.tomg.popcorn
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -11,29 +9,22 @@ import androidx.annotation.StringRes
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.tomg.popcorn.models.Favourite
+import com.tomg.popcorn.db.Favourite
 import com.tomg.popcorn.ui.theme.Colors
 import com.tomg.popcorn.ui.theme.PopcornTheme
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-import kotlin.math.exp
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -99,32 +90,35 @@ class MainActivity : ComponentActivity() {
   private fun mockData(): List<Favourite>{
     return listOf(
       Favourite(
+        id = 1234,
         title = "Shawshank redemption",
-        year = "1994",
-        released = "14 Oct 1994",
-        genre = "Drama",
+        releaseDate = "14 Oct 1994",
+        genres = emptyList(),
         poster = "https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg",
-        imdbRating = "9,3",
-        imdbVotes = "2,485,751",
-        usersRating = 0),
+        rating = "9,3",
+        votes = "2,485,751",
+        backDrop = "",
+        overview = ""),
       Favourite(
+        id = 1234,
         title = "Interstellar",
-        year = "2015",
-        released = "09 Dec 2015",
-        genre = "Sci-fi",
+        releaseDate = "09 Dec 2015",
+        genres = emptyList(),
         poster = "https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg",
-        imdbRating = "8,8",
-        imdbVotes = "1,485,751",
-        usersRating = 0
+        rating = "8,8",
+        votes = "1,485,751",
+        backDrop = "",
+        overview = ""
       ), Favourite(
+        id = 1234,
         title = "Goodfellas",
-        year = "1998",
-        released = "24 June 1998",
-        genre = "Action",
+        releaseDate = "24 June 1998",
+        genres = emptyList(),
         poster = "https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg",
-        imdbRating = "9,3",
-        imdbVotes = "2,485,751",
-        usersRating = 0
+        rating = "9,3",
+        votes = "2,485,751",
+        backDrop = "",
+        overview = ""
       )
     )
   }

@@ -22,44 +22,46 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.tomg.popcorn.models.Favourite
+import com.tomg.popcorn.db.Favourite
 import com.tomg.popcorn.ui.theme.Colors
 import com.tomg.popcorn.ui.theme.Fonts
 
 @Preview
 @Composable
 fun FavouritePreview(){
-  val list = listOf(Favourite(
-    title = "Shawshank redemption",
-    year = "1994",
-    released = "14 Oct 1994",
-    genre = "Drama",
-    poster = "https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg",
-    imdbRating = "9,3",
-    imdbVotes = "2,485,751",
-    usersRating = 0),
+  val list = listOf(
     Favourite(
-    title = "Interstellar",
-    year = "2015",
-    released = "09 Dec 2015",
-    genre = "Sci-fi",
-    poster = "https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg",
-    imdbRating = "8,8",
-    imdbVotes = "1,485,751",
-    usersRating = 0
+      id = 12434,
+      title = "Shawshank redemption",
+      releaseDate = "14 Oct 1994",
+      genres = emptyList(),
+      poster = "https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg",
+      rating = "9,3",
+      votes = "2,485,751",
+      backDrop = "",
+      overview = "test"),
+    Favourite(
+      id = 12434,
+      title = "Interstellar",
+      releaseDate = "09 Dec 2015",
+      genres = emptyList(),
+      poster = "https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg",
+      rating = "8,8",
+      votes = "1,485,751",
+      backDrop = "",
+      overview = "test"
   ),Favourite(
-    title = "Goodfellas",
-    year = "1998",
-    released = "24 June 1998",
-    genre = "Action",
-    poster = "https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg",
-    imdbRating = "9,3",
-    imdbVotes = "2,485,751",
-    usersRating = 0
+      id = 12434,
+      title = "Goodfellas",
+      releaseDate = "24 June 1998",
+      genres = emptyList(),
+      poster = "https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg",
+      rating = "9,3",
+      votes = "2,485,751",
+      backDrop = "",
+      overview = "test"
   ))
   FavouriteScreen(favourites = list)
 }

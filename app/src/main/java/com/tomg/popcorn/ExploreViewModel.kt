@@ -1,6 +1,8 @@
 package com.tomg.popcorn
 
 import android.util.Log
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.tomg.popcorn.api.Api
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,12 +18,21 @@ class ExploreViewModel
 
   private val disposables: CompositeDisposable = CompositeDisposable()
 
+  var popularMovies: MutableState<List<Api.Movie>> = mutableStateOf(listOf())
+
+  init {
+    loadPopularMovies()
+  }
+
   fun loadPopularMovies(){
     disposables += movieRepository.loadPopularMovies()
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe({
-        Log.d("TGIW", it.map { it.title }.toString())
+        popularMovies.value = it
+        it.forEach {
+          Log.d("TGIW", it.toString())
+        }
       }, {
         Log.d("TGIW", it.toString())
         //Log.d("TGIW", "error")
@@ -36,12 +47,12 @@ class ExploreViewModel
   companion object {
     fun getMockData(): List<Api.Movie> {
       return listOf(
-        Api.Movie("1234", "Shawshank redemption", "1994", "", listOf(24,5,26), "", "9.4", "200.004"),
-        Api.Movie("12434", "Manhattan", "2021", "", listOf(24,5,26), "", "7.9", "280.004"),
-        Api.Movie("1234", "Harry potter and the deadly hallows: part 1", "2010", "", listOf(24,5,26), "", "7.7", "205.004"),
-        Api.Movie("1234", "Harry potter and the deadly hallows: part 1", "2011", "", listOf(24,5,26), "", "8.1", "208.004"),
-        Api.Movie("1234", "The green mile", "1998", "", listOf(24,5,26), "", "8.4", "200.004"),
-        Api.Movie("1234", "De Oost", "2021", "", listOf(24,5,26), "", "7.0", "230.004")
+        Api.Movie("1234", "Shawshank redemption", "", listOf(24,5,26),"", "9.4", "200.004", "", ""),
+        Api.Movie("12434", "Manhattan", "", listOf(24,5,26), "", "7.9", "280.004","",""),
+        Api.Movie("12434", "Manhattan", "", listOf(24,5,26), "", "7.9", "280.004","",""),
+        Api.Movie("12434", "Manhattan", "", listOf(24,5,26), "", "7.9", "280.004","",""),
+        Api.Movie("12434", "Manhattan", "", listOf(24,5,26), "", "7.9", "280.004","",""),
+        Api.Movie("12434", "Manhattan", "", listOf(24,5,26), "", "7.9", "280.004","","")
       )
     }
   }
