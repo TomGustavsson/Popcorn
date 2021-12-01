@@ -21,7 +21,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import coil.annotation.ExperimentalCoilApi
 import com.tomg.popcorn.db.Favourite
+import com.tomg.popcorn.explore.ExploreScreen
+import com.tomg.popcorn.explore.ExploreViewModel
+import com.tomg.popcorn.favourites.FavouriteScreen
+import com.tomg.popcorn.favourites.FavouriteViewModel
 import com.tomg.popcorn.ui.theme.Colors
 import com.tomg.popcorn.ui.theme.PopcornTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,7 +35,9 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
   private val exploreViewModel: ExploreViewModel by viewModels()
+  private val favouriteViewModel: FavouriteViewModel by viewModels()
 
+  @ExperimentalCoilApi
   @SuppressLint("RememberReturnType")
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -79,7 +86,7 @@ class MainActivity : ComponentActivity() {
             }
 
             composable(Screen.Favourites.route) {
-              FavouriteScreen(favourites = mockData())
+              FavouriteScreen(favouriteViewModel)
             }
           }
         }
@@ -87,41 +94,6 @@ class MainActivity : ComponentActivity() {
     }
   }
 
-  private fun mockData(): List<Favourite>{
-    return listOf(
-      Favourite(
-        id = 1234,
-        title = "Shawshank redemption",
-        releaseDate = "14 Oct 1994",
-        genres = emptyList(),
-        poster = "https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg",
-        rating = "9,3",
-        votes = "2,485,751",
-        backDrop = "",
-        overview = ""),
-      Favourite(
-        id = 1234,
-        title = "Interstellar",
-        releaseDate = "09 Dec 2015",
-        genres = emptyList(),
-        poster = "https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg",
-        rating = "8,8",
-        votes = "1,485,751",
-        backDrop = "",
-        overview = ""
-      ), Favourite(
-        id = 1234,
-        title = "Goodfellas",
-        releaseDate = "24 June 1998",
-        genres = emptyList(),
-        poster = "https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SX300.jpg",
-        rating = "9,3",
-        votes = "2,485,751",
-        backDrop = "",
-        overview = ""
-      )
-    )
-  }
   sealed class Screen(val route: String, @StringRes val resourceId: Int) {
     object Explore : Screen("explore", R.string.explore)
     object Favourites : Screen("favourites", R.string.favourites)

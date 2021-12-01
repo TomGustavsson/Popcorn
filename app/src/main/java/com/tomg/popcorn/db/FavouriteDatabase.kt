@@ -8,6 +8,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
 import androidx.room.Query
+import com.tomg.popcorn.api.Api
 import io.reactivex.Flowable
 import io.reactivex.Single
 
@@ -19,7 +20,7 @@ data class Favourite(@PrimaryKey(autoGenerate = false) @ColumnInfo(name = "id") 
                      @ColumnInfo(name = "poster") val poster: String,
                      @ColumnInfo(name = "rating") val rating: String,
                      @ColumnInfo(name = "votes") val votes: String,
-                     @ColumnInfo(name = "releasedate") val releaseDate: String,
+                     @ColumnInfo(name = "releaseDate") val releaseDate: String,
                      @ColumnInfo(name = "overview") val overview: String
                      )
 
@@ -38,3 +39,15 @@ interface FavouriteDao {
   @Query("SELECT * FROM favourites WHERE id=:id")
   fun loadFavourite(id: Int): Single<Favourite>
 }
+
+fun Api.Movie.toFavourite() = Favourite(
+  id = id.toInt(),
+  title = title,
+  backDrop = backdrop,
+  genres = genres,
+  poster = poster,
+  rating = rating,
+  votes = votes,
+  releaseDate = releaseDate,
+  overview = overview
+)

@@ -1,5 +1,6 @@
 package com.tomg.popcorn.di
 
+import com.squareup.moshi.Moshi
 import com.tomg.popcorn.api.MovieApi
 import dagger.Module
 import dagger.Provides
@@ -22,6 +23,13 @@ object NetworkModule {
 
   @Singleton
   @Provides
+  fun moshi(): Moshi {
+    return Moshi.Builder()
+      .build()
+  }
+
+  @Singleton
+  @Provides
   fun httpClient(): OkHttpClient {
     val builder = OkHttpClient.Builder()
 
@@ -41,11 +49,11 @@ object NetworkModule {
   }
   @Singleton
   @Provides
-  fun retrofit(httpClient: OkHttpClient): Retrofit {
+  fun retrofit(httpClient: OkHttpClient, moshi: Moshi): Retrofit {
     return Retrofit.Builder()
       .baseUrl(BASE_URL)
       .client(httpClient)
-      .addConverterFactory(MoshiConverterFactory.create())
+      .addConverterFactory(MoshiConverterFactory.create(moshi))
       .addConverterFactory(ScalarsConverterFactory.create())
       .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
       .build()

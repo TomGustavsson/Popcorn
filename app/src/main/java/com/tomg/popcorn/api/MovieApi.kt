@@ -12,9 +12,14 @@ interface MovieApi {
   @GET("discover/movie?&discover/movie?sort_by=popularity.desc&page=1")
   fun popularMovies(): Single<Api.Movies>
 
-  /** Use this endpoint later for movie detal view **/
+  /** Use this endpoint later for movie detail view **/
   @GET("movie/{id}/similar?&language=en-US&page=1")
   fun similarMovies(@Path("id") id: String): Single<Api.Movies>
+
+
+  /** Genres comes as ids in movie object. we get whole list of genre ids paired with names with this endpoint */
+  @GET("genre/movie/list?&language=en-US")
+  fun getGenreList(): Single<Api.Genres>
 }
 
 object Api {
@@ -39,4 +44,13 @@ object Api {
     @field:Json(name="overview")
     val overview: String
     )
+
+  data class Genres(@Json(name = "genres") val genres: List<Genre>)
+
+  data class Genre(
+    @field:Json(name="id")
+    val id: Int,
+    @field:Json(name="name")
+    val name: String,
+  )
 }

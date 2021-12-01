@@ -1,7 +1,11 @@
 package com.tomg.popcorn
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,9 +20,14 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -41,7 +50,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
+import com.tomg.popcorn.api.Api
 import com.tomg.popcorn.ui.theme.Colors
+import com.tomg.popcorn.ui.theme.FlagShape
 import com.tomg.popcorn.ui.theme.Fonts
 
 @Composable
@@ -112,7 +123,7 @@ fun DrawableInText(
 
 @ExperimentalCoilApi
 @Composable
-fun LoadImageWithUrl(width: Int, height: Int, url: String){
+fun LoadImageWithUrl(width: Int, height: Int, url: String, saved: Boolean, onClick: (Boolean) -> Unit){
   Box {
     CircularProgressIndicator(color = Colors.popRed, modifier = Modifier.align(Alignment.Center))
     Image(
@@ -128,19 +139,41 @@ fun LoadImageWithUrl(width: Int, height: Int, url: String){
         .width(width.dp)
         .align(Alignment.CenterStart)
     )
+    FlagShapedBox(
+      modifier = Modifier
+        .align(Alignment.TopEnd)
+        .alpha(0.8f)
+        .clickAbleModifier(true){
+          onClick.invoke(!saved)
+        }, saved)
   }
 }
 
-class MyFirstShape : Shape {
-  override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline {
-    val trianglePath = Path().apply {
-      // Moves to top center position
-      moveTo(size.width / 2f, 0f)
-      // Add line to right corner above circle
-      lineTo(x = size.width, y = size.height)
-      //Add line to left corner above circle
-      lineTo(x = 0f, y = size.height)
-    }
-    return Outline.Generic(path = trianglePath)
+@Composable
+fun FlagShapedBox(modifier: Modifier = Modifier, saved: Boolean){
+  Box(modifier = modifier
+    .height(50.dp)
+    .width(35.dp)
+    .clip(FlagShape())
+    .background(if(saved)Colors.popRed else Colors.popLighDark)
+  ){
+    Icon(
+      painter = painterResource(id = if(saved) R.drawable.ic_check else R.drawable.ic_plus),
+      contentDescription = "save",
+      modifier = Modifier
+        .align(Alignment.TopCenter)
+        .padding(6.dp)
+      ,
+      tint = Colors.popWhite
+    )
   }
+}
+
+@SuppressLint("ModifierFactoryUnreferencedReceiver", "UnnecessaryComposedModifier")
+fun Modifier.clickAbleModifier(bounded: Boolean, onClick: () -> Unit): Modifier = composed {
+  Modifier.clickable(
+    interactionSource = remember { MutableInteractionSource() },
+    indication = rememberRipple(bounded = bounded),
+    onClick = { onClick.invoke() }
+  )
 }

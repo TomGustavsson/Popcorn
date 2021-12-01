@@ -7,6 +7,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
 import androidx.room.Query
+import com.tomg.popcorn.api.Api
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import org.intellij.lang.annotations.Language
@@ -31,3 +32,9 @@ interface GenreDao {
   @Query("SELECT * FROM genres WHERE id = :genreId")
   fun loadArticle(genreId: Int): Maybe<Genre>
 }
+
+fun Api.Genre.toDbModel() = Genre(
+  id = id,
+  name = name
+)
+
