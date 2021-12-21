@@ -30,7 +30,11 @@ interface GenreDao {
 
   @Language("RoomSql")
   @Query("SELECT * FROM genres WHERE id = :genreId")
-  fun loadArticle(genreId: Int): Maybe<Genre>
+  fun loadGenre(genreId: Int): Maybe<Genre>
+
+  @Language("RoomSql")
+  @Query("SELECT * FROM genres ORDER BY RANDOM() LIMIT 1")
+  fun loadRandomGenre(): Maybe<Genre>
 }
 
 fun Api.Genre.toDbModel() = Genre(

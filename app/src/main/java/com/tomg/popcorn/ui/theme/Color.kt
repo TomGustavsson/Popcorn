@@ -13,5 +13,5 @@ object Colors {
   val popBlack = Color(0xFF000000)
   val popLighDark = Color(0XFF212121)
   val popLightestDark = Color(0XFF424242)
-  val popGreySpecialDark = Color(0xFFD6D6D6)
+  val popGreySpecialDark = Color(0xFF6E6D6D)
 }

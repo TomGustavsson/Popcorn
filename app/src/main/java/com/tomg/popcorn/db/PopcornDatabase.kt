@@ -5,8 +5,10 @@ import androidx.room.ProvidedTypeConverter
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
+import com.tomg.popcorn.api.Api
 import javax.inject.Inject
 
 @Database(

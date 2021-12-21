@@ -1,6 +1,8 @@
 package com.tomg.popcorn
 
+import android.annotation.SuppressLint
 import android.app.Application
+import android.util.Log
 import com.facebook.stetho.Stetho
 import com.tomg.popcorn.api.MovieApi
 import com.tomg.popcorn.db.GenreDao
@@ -27,14 +29,15 @@ class BaseApplication : Application(){
     syncGenres()
   }
 
+  @SuppressLint("CheckResult")
   private fun syncGenres(){
     movieApi.getGenreList()
       .subscribeOn(Schedulers.io())
       .subscribe({
         genreDao.insertAll(it.genres.map { it.toDbModel() })
       }, {
-
-      }).dispose()
+        Log.d("TGIW", it.toString())
+      })
   }
 
 

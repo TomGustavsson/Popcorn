@@ -2,4 +2,8 @@
     <string name="app_name">Popcorn</string>
     <string name="explore">Explore</string>
     <string name="favourites">Favourites</string>
+    <string name="detail">detail</string>
+
+    <string name="popular_movies">Popular movies</string>
+    <string name="movies_released_in">Movies released in</string>
 </resources>

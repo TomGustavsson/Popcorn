@@ -1,9 +1,8 @@
-package com.tomg.popcorn.explore
+package com.tomg.popcorn.details
 
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import com.tomg.popcorn.api.Api
 import com.tomg.popcorn.db.Favourite
@@ -18,29 +17,25 @@ import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 @HiltViewModel
-class ExploreViewModel
+class DetailViewModel
 @Inject constructor(private val movieRepository: MovieRepository): ViewModel() {
 
   private val disposables: CompositeDisposable = CompositeDisposable()
 
-  var movieList: MutableState<Map<String,List<Api.Movie>>> = mutableStateOf(mapOf())
-
-  val query = mutableStateOf("")
-
-  init {
-    loadPopularMovies()
-  }
+  val similarMovies: MutableState<List<Api.Movie>> = mutableStateOf(emptyList())
+  val movieDetail: MutableState<Api.MovieDetails?> = mutableStateOf(null)
 
   fun favourites(): Flowable<List<Favourite>> {
     return movieRepository.favourites()
   }
 
-  private fun loadPopularMovies(){
-    disposables += movieRepository.loadMovies()
+  fun loadMovie(id: String){
+    disposables += movieRepository.loadMovieDetails(id)
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe({
-        movieList.value = it
+        similarMovies.value = it.second
+        movieDetail.value = it.first
       }, {
         Log.d("TGIW", it.toString())
       })
@@ -50,7 +45,7 @@ class ExploreViewModel
     disposables += movieRepository.saveMovie(movie)
       .subscribe({
         Log.d("TGIW", "favourite was added..")
-       }, {
+      }, {
         Log.d("TGIW", it.toString())
       })
   }
@@ -64,36 +59,8 @@ class ExploreViewModel
       })
   }
 
-  fun changeQuery(newQuery: String){
-    query.value = newQuery
-  }
-
-  fun searchMovies(){
-    disposables += movieRepository.searchMovies(query.value)
-      .subscribeOn(Schedulers.io())
-      .observeOn(AndroidSchedulers.mainThread())
-      .subscribe({
-        Log.d("TGIW","you searched " + it.toString())
-      }, {
-        Log.d("TGIW", it.toString())
-      })
-  }
-
   override fun onCleared() {
     super.onCleared()
-    disposables.clear()
-  }
-
-  companion object {
-    fun getMockData(): List<Api.Movie> {
-      return listOf(
-        Api.Movie("1234", "Shawshank redemption", "", listOf(24,5,26),"", "9.4", "200.004", "", ""),
-        Api.Movie("12434", "Manhattan", "", listOf(24,5,26), "", "7.9", "280.004","",""),
-        Api.Movie("12434", "Manhattan", "", listOf(24,5,26), "", "7.9", "280.004","",""),
-        Api.Movie("12434", "Manhattan", "", listOf(24,5,26), "", "7.9", "280.004","",""),
-        Api.Movie("12434", "Manhattan", "", listOf(24,5,26), "", "7.9", "280.004","",""),
-        Api.Movie("12434", "Manhattan", "", listOf(24,5,26), "", "7.9", "280.004","","")
-      )
-    }
+    disposables.dispose()
   }
 }

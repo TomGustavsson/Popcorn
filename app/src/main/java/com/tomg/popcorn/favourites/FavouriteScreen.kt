@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -54,7 +56,7 @@ fun FavouriteScreen(viewModel: FavouriteViewModel){
 fun FavouriteRow(favourite: Favourite, callback: (Favourite) -> Unit){
   StandardCard {
     Row {
-      LoadImageWithUrl(width = 100, height = 150, url = favourite.poster, saved = true){
+      LoadImageWithUrl(modifier = Modifier.width(100.dp).height(150.dp), url = favourite.poster, saved = true){
         callback.invoke(favourite)
       }
       Text(

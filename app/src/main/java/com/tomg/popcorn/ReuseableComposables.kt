@@ -123,7 +123,7 @@ fun DrawableInText(
 
 @ExperimentalCoilApi
 @Composable
-fun LoadImageWithUrl(width: Int, height: Int, url: String, saved: Boolean, onClick: (Boolean) -> Unit){
+fun LoadImageWithUrl(modifier: Modifier = Modifier, url: String, saved: Boolean, onClick: (Boolean) -> Unit){
   Box {
     CircularProgressIndicator(color = Colors.popRed, modifier = Modifier.align(Alignment.Center))
     Image(
@@ -131,12 +131,11 @@ fun LoadImageWithUrl(width: Int, height: Int, url: String, saved: Boolean, onCli
         data = url,
         builder = {
           error(R.drawable.ic_placeholder_image)
+          allowHardware(false)
         }),
       contentScale = ContentScale.Crop,
       contentDescription = null,
-      modifier = Modifier
-        .height(height.dp)
-        .width(width.dp)
+      modifier = modifier
         .align(Alignment.CenterStart)
     )
     FlagShapedBox(

@@ -25,7 +25,7 @@ object AppModule {
 
   @Singleton
   @Provides
-  fun movieRepository(movieApi: MovieApi, favouriteDao: FavouriteDao, genreDao: GenreDao): MovieRepository {
-    return MovieRepository(movieApi, favouriteDao, genreDao)
+  fun movieRepository(movieApi: MovieApi, favouriteDao: FavouriteDao, genreDao: GenreDao, @ApplicationContext context: Context): MovieRepository {
+    return MovieRepository(movieApi, favouriteDao, genreDao, context)
   }
 }
