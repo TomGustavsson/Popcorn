@@ -1,5 +1,6 @@
 package com.tomg.popcorn.explore
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,23 +24,30 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rxjava2.subscribeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import com.tomg.popcorn.DrawableInText
+import com.tomg.popcorn.ErrorText
 import com.tomg.popcorn.LoadImageWithUrl
 import com.tomg.popcorn.MainActivity
 import com.tomg.popcorn.R
 import com.tomg.popcorn.api.Api
 import com.tomg.popcorn.clickAbleModifier
 import com.tomg.popcorn.db.Favourite
+import com.tomg.popcorn.db.toFavourite
+import com.tomg.popcorn.favourites.FavouriteRow
 import com.tomg.popcorn.ui.theme.Colors
 import com.tomg.popcorn.ui.theme.Fonts
 import java.net.URLEncoder
@@ -61,7 +69,10 @@ fun ExploreScreen(viewModel: ExploreViewModel, navController: NavController){
   val movieList = viewModel.movieList.value.toList()
   val favourites = viewModel.favourites().subscribeAsState(initial = emptyList()).value
 
+  val searchedMovies = viewModel.searchedMovies.value
   val query = viewModel.query.value
+
+  val focusManager = LocalFocusManager.current
 
   Column(Modifier.background(Colors.popBlack)) {
     TextField(
@@ -86,28 +97,48 @@ fun ExploreScreen(viewModel: ExploreViewModel, navController: NavController){
       ),
       keyboardOptions = KeyboardOptions(
         keyboardType = KeyboardType.Text,
-        imeAction = ImeAction.Search
+        imeAction = ImeAction.Done
       ),
-      keyboardActions = KeyboardActions(onSearch = { viewModel.searchMovies() })
+      keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
     )
       LazyColumn(modifier = Modifier
         .fillMaxSize()
         .background(Colors.popBlack)){
-        items(movieList.size){ index ->
-          ExploreRow(
-            list = movieList[index].second,
-            favourites = favourites,
-            header = movieList[index].first,
-            onSave = {
-              if(it.first){
-                viewModel.saveMovie(it.second)
-              } else {
-                viewModel.deleteFavourite(it.second)
-              }
-            },
-            onClick = {
-              navController.navigate(MainActivity.Screen.Detail.route.replace("{movieId}", it.id))
-            })
+        if(query.isEmpty()){
+          items(movieList.size){ index ->
+            ExploreRow(
+              list = movieList[index].second,
+              favourites = favourites,
+              header = movieList[index].first,
+              onSave = {
+                if(it.first){
+                  viewModel.saveMovie(it.second)
+                } else {
+                  viewModel.deleteFavourite(it.second)
+                }
+              },
+              onClick = {
+                navController.navigate(MainActivity.Screen.Detail.route.replace("{movieId}", it.id))
+              })
+          }
+        } else {
+          if(searchedMovies.isNotEmpty()){
+            items(searchedMovies.size){ index ->
+              val movie = searchedMovies[index]
+              FavouriteRow(favourite = movie.toFavourite(), favourites.map { it.id }.contains(movie.id.toInt()), callback = {
+                if(favourites.map { it.id }.contains(it.id)){
+                  viewModel.deleteFavourite(movie)
+                } else {
+                  viewModel.saveMovie(movie)
+                }
+              })
+            } 
+          } else {
+            Log.d("TGIW", "show item")
+            item {
+              ErrorText(text = "No result found for \"${query}\".\n try a new search")
+            }
+          }
         }
       }
     }
@@ -115,7 +146,7 @@ fun ExploreScreen(viewModel: ExploreViewModel, navController: NavController){
 
 @ExperimentalCoilApi
 @Composable
-fun ExploreRow(list: List<Api.Movie>, favourites: List<Favourite>,header: String, onSave: (Pair<Boolean,Api.Movie>) -> Unit, onClick: (Api.Movie) -> Unit){
+fun  ExploreRow(list: List<Api.Movie>, favourites: List<Favourite>,header: String, onSave: (Pair<Boolean,Api.Movie>) -> Unit, onClick: (Api.Movie) -> Unit){
   Column(Modifier.background(Colors.popBlack)){
     Text(text = header,
       fontFamily = Fonts.popFont,
@@ -144,7 +175,7 @@ fun ExploreRow(list: List<Api.Movie>, favourites: List<Favourite>,header: String
 fun ExploreItem(movie: Api.Movie, favourites: List<Favourite>, onSave: (Pair<Boolean,Api.Movie>) -> Unit, onClick: (Api.Movie) -> Unit){
   Card(
     modifier = Modifier
-      .clickAbleModifier(true){
+      .clickAbleModifier(true) {
         onClick.invoke(movie)
       }
       .width(150.dp)
@@ -156,7 +187,9 @@ fun ExploreItem(movie: Api.Movie, favourites: List<Favourite>, onSave: (Pair<Boo
   ) {
     Column {
       LoadImageWithUrl(
-        modifier = Modifier.width(150.dp).height(220.dp),
+        modifier = Modifier
+          .width(150.dp)
+          .height(220.dp),
         url = movie.poster,
         saved = favourites.map { it.id }.contains(movie.id.toInt())){
         onSave.invoke(Pair(it,movie))

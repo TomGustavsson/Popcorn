@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
@@ -42,6 +43,7 @@ import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -166,6 +168,37 @@ fun FlagShapedBox(modifier: Modifier = Modifier, saved: Boolean){
       tint = Colors.popWhite
     )
   }
+}
+
+/** Place this within a box and set align where you want the fading **/
+@Composable
+fun FadingBottomBox(modifier: Modifier = Modifier){
+  Box(
+    modifier = modifier
+      .fillMaxWidth()
+      .height(30.dp)
+      .background(
+        brush = Brush.verticalGradient(
+          colors = listOf(
+            Color.Transparent,
+            Colors.popBlack
+          )
+        )
+      ))
+}
+
+@Composable
+fun ErrorText(text: String){
+  Text(
+    textAlign = TextAlign.Center,
+    text = text,
+    color = Colors.popWhite,
+    fontFamily = Fonts.popFont,
+    fontWeight = FontWeight.W100,
+    fontSize = 18.sp,
+    modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
+    lineHeight = 26.sp
+  )
 }
 
 @SuppressLint("ModifierFactoryUnreferencedReceiver", "UnnecessaryComposedModifier")

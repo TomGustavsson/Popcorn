@@ -51,3 +51,15 @@ fun Api.Movie.toFavourite() = Favourite(
   releaseDate = releaseDate,
   overview = overview
 )
+
+fun Api.MovieDetails.toFavourite() = Favourite(
+  id = id.toInt(),
+  title = title,
+  backDrop = backdrop,
+  genres = genres.map { it.id },
+  poster = poster,
+  rating = rating,
+  votes = votes,
+  releaseDate = releaseDate,
+  overview = overview
+)

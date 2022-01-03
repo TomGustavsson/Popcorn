@@ -14,6 +14,8 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -56,27 +58,30 @@ class MainActivity : ComponentActivity() {
     setContent {
       PopcornTheme {
         val navController = rememberNavController()
+        val bottomBarState = rememberSaveable { (mutableStateOf(true)) }
         Scaffold(
           backgroundColor = Colors.popWhite,
           bottomBar = {
-            BottomNavigation {
-              val navBackStackEntry by navController.currentBackStackEntryAsState()
-              val currentDestination = navBackStackEntry?.destination
-              items.forEach { screen ->
-                BottomNavigationItem(
-                  icon = {  Icon(painter = painterResource(screen.drawableRes), contentDescription = "Info") },
-                  label = { Text(stringResource(screen.resourceId)) },
-                  selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
-                  onClick = {
-                    navController.navigate(screen.route) {
-                      popUpTo(navController.graph.findStartDestination().id) {
-                        saveState = true
+            if(bottomBarState.value){
+              BottomNavigation {
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentDestination = navBackStackEntry?.destination
+                items.forEach { screen ->
+                  BottomNavigationItem(
+                    icon = {  Icon(painter = painterResource(screen.drawableRes), contentDescription = "Info") },
+                    label = { Text(stringResource(screen.resourceId)) },
+                    selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                    onClick = {
+                      navController.navigate(screen.route) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                          saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
                       }
-                      launchSingleTop = true
-                      restoreState = true
                     }
-                  }
-                )
+                  )
+                }
               }
             }
           }
@@ -88,12 +93,14 @@ class MainActivity : ComponentActivity() {
           ) {
 
             composable(Screen.Explore.route) {
+              bottomBarState.value = true
               Box(modifier = Modifier.padding(innerPadding)) {
                 ExploreScreen(exploreViewModel, navController = navController)
               }
             }
 
             composable(Screen.Favourites.route) {
+              bottomBarState.value = true
               Box(modifier = Modifier.padding(innerPadding)) {
                 FavouriteScreen(favouriteViewModel)
               }
@@ -102,6 +109,7 @@ class MainActivity : ComponentActivity() {
             composable(
               Screen.Detail.route,
               arguments = listOf(navArgument("movieId") { type = NavType.StringType })) {
+              bottomBarState.value = false
               it.arguments?.getString("movieId")?.let {
                 detailViewModel.loadMovie(it)
               }

@@ -1,9 +1,6 @@
 package com.tomg.popcorn.details
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,19 +20,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.annotation.ExperimentalCoilApi
-import coil.compose.rememberImagePainter
+import com.tomg.popcorn.FadingBottomBox
 import com.tomg.popcorn.LoadImageWithUrl
 import com.tomg.popcorn.R
-import com.tomg.popcorn.api.Api
-import com.tomg.popcorn.db.Favourite
 import com.tomg.popcorn.explore.ExploreRow
 import com.tomg.popcorn.ui.theme.Colors
 import com.tomg.popcorn.ui.theme.Fonts
@@ -56,24 +49,20 @@ fun DetailScreen(viewModel: DetailViewModel){
 
     Box(modifier = Modifier.fillMaxWidth()){
       LoadImageWithUrl(
-        modifier = Modifier.width(LocalConfiguration.current.screenWidthDp.dp).height(220.dp),
+        modifier = Modifier
+          .width(LocalConfiguration.current.screenWidthDp.dp)
+          .height(220.dp),
         url = movie?.backdrop ?: "",
         saved = favourites.map { it.id }.contains(movie?.id?.toInt())){
-        //onSave.invoke(Pair(it,movie))
+        movie?.let { movie ->
+          if(it){
+            viewModel.saveMovie(movie)
+          } else {
+            viewModel.deleteFavourite(movie)
+          }
+        }
       }
-      Box(
-        modifier = Modifier
-          .align(Alignment.BottomCenter)
-          .fillMaxWidth()
-          .height(30.dp)
-          .background(
-            brush = Brush.verticalGradient(
-              colors = listOf(
-                Color.Transparent,
-                Colors.popBlack
-              )
-            )
-          ))
+      FadingBottomBox(Modifier.align(Alignment.BottomCenter))
     }
 
     Text(text = movie?.title ?: "",
@@ -104,9 +93,9 @@ fun DetailScreen(viewModel: DetailViewModel){
       Modifier
         .fillMaxWidth()
         .padding(top = 16.dp)) {
-      InformationBox(Modifier.weight(1f), "IMDb RATING", "6.8", "/10")
+      InformationBox(Modifier.weight(1f), "IMDb RATING", movie?.rating ?: "0.0", "/10")
       InformationBox(Modifier.weight(1f), "YOUR RATING", "Rate", "")
-      InformationBox(Modifier.weight(1f), "POPULARITY", "19", "")
+      InformationBox(Modifier.weight(1f), "POPULARITY", movie?.votes ?: "0", "")
     }
 
     ExploreRow(

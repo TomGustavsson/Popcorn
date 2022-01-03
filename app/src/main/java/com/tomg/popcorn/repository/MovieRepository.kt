@@ -58,9 +58,9 @@ constructor(private val movieApi: MovieApi, private val favouriteDao: FavouriteD
     return movieApi.searchMovies(query = title).toFlowable().map { it.results.map { it.copy(backdrop = IMAGE_BASE_URL + it.backdrop, poster = IMAGE_BASE_URL + it.poster) } }
   }
 
-  fun saveMovie(movie: Api.Movie): Completable {
+  fun saveMovie(movie: Favourite): Completable {
     return Completable.fromCallable {
-      favouriteDao.saveFavourite(movie.toFavourite())
+      favouriteDao.saveFavourite(movie)
     }.subscribeOn(Schedulers.io())
   }
 

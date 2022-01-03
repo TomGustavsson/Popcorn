@@ -41,10 +41,28 @@ class DetailViewModel
       })
   }
 
-  fun saveMovie(movie: Api.Movie){
-    disposables += movieRepository.saveMovie(movie)
+  fun saveMovie(movie: Api.MovieDetails){
+    disposables += movieRepository.saveMovie(movie.toFavourite())
       .subscribe({
         Log.d("TGIW", "favourite was added..")
+      }, {
+        Log.d("TGIW", it.toString())
+      })
+  }
+
+  fun saveMovie(movie: Api.Movie){
+    disposables += movieRepository.saveMovie(movie.toFavourite())
+      .subscribe({
+        Log.d("TGIW", "favourite was added..")
+      }, {
+        Log.d("TGIW", it.toString())
+      })
+  }
+
+  fun deleteFavourite(movie: Api.MovieDetails){
+    disposables += movieRepository.deleteFavourite(movie.toFavourite())
+      .subscribe({
+        Log.d("TGIW", "favourite was deleted..")
       }, {
         Log.d("TGIW", it.toString())
       })

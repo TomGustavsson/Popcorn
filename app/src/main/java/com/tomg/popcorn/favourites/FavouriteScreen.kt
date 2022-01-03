@@ -1,6 +1,8 @@
 package com.tomg.popcorn.favourites
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,13 +16,17 @@ import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rxjava2.subscribeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.annotation.ExperimentalCoilApi
+import com.tomg.popcorn.DrawableInText
+import com.tomg.popcorn.FadingBottomBox
 import com.tomg.popcorn.LoadImageWithUrl
+import com.tomg.popcorn.R
 import com.tomg.popcorn.db.Favourite
 import com.tomg.popcorn.ui.theme.Colors
 import com.tomg.popcorn.ui.theme.Fonts
@@ -31,7 +37,7 @@ import com.tomg.popcorn.ui.theme.Fonts
 @Preview
 @Composable
 fun FavouriteRowPreview(){
-  FavouriteRow(favourite = Favourite(1234, "Shawshank redemption", "", emptyList(), "", "9.4", "200.001", "1993-07-24", "")){
+  FavouriteRow(favourite = Favourite(1234, "Shawshank redemption", "", emptyList(), "", "9.4", "200.001", "1993-07-24", ""), true){
   }
 }
 /************************************/
@@ -44,7 +50,7 @@ fun FavouriteScreen(viewModel: FavouriteViewModel){
     .fillMaxSize()
     .background(Colors.popBlack), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)){
     items(favourites.value.size){ index ->
-      FavouriteRow(favourites.value[index]){
+      FavouriteRow(favourites.value[index], true){
         viewModel.delete(it)
       }
     }
@@ -53,22 +59,39 @@ fun FavouriteScreen(viewModel: FavouriteViewModel){
 
 @ExperimentalCoilApi
 @Composable
-fun FavouriteRow(favourite: Favourite, callback: (Favourite) -> Unit){
+fun FavouriteRow(favourite: Favourite, isSaved: Boolean, callback: (Favourite) -> Unit){
   StandardCard {
-    Row {
-      LoadImageWithUrl(modifier = Modifier.width(100.dp).height(150.dp), url = favourite.poster, saved = true){
-        callback.invoke(favourite)
+    Box {
+      Row {
+        LoadImageWithUrl(modifier = Modifier
+          .width(100.dp)
+          .height(150.dp), url = favourite.poster, saved = isSaved){
+          callback.invoke(favourite)
+        }
+        Column {
+          Text(
+            text = favourite.title,
+            fontFamily = Fonts.popFont,
+            fontWeight = FontWeight.W300,
+            fontSize = 18.sp,
+            color = Colors.popWhite,
+            modifier = Modifier.padding(end = 16.dp, start = 16.dp, top = 6.dp)
+          )
+          DrawableInText(
+            end = false,
+            drawableRes = R.drawable.ic_star,
+            drawableColor = Colors.popRed,
+            textColor = Colors.popGreySpecialDark,
+            text = favourite.rating,
+            modifier = Modifier.padding(start = 16.dp, top = 4.dp),
+            fontSize = 18.sp,
+            iconSize = 24.sp
+          )
+        }
       }
-      Text(
-        text = favourite.title,
-        fontFamily = Fonts.popFont,
-        fontWeight = FontWeight.W300,
-        fontSize = 18.sp,
-        color = Colors.popWhite,
-        modifier = Modifier.padding(end = 16.dp, start = 16.dp, top = 6.dp)
-      )
+      FadingBottomBox(Modifier.align(Alignment.BottomCenter))
     }
-  }
+    }
 }
 
 @Composable

@@ -24,6 +24,7 @@ class ExploreViewModel
   private val disposables: CompositeDisposable = CompositeDisposable()
 
   var movieList: MutableState<Map<String,List<Api.Movie>>> = mutableStateOf(mapOf())
+  var searchedMovies: MutableState<List<Api.Movie>> = mutableStateOf(emptyList())
 
   val query = mutableStateOf("")
 
@@ -47,7 +48,7 @@ class ExploreViewModel
   }
 
   fun saveMovie(movie: Api.Movie){
-    disposables += movieRepository.saveMovie(movie)
+    disposables += movieRepository.saveMovie(movie.toFavourite())
       .subscribe({
         Log.d("TGIW", "favourite was added..")
        }, {
@@ -66,6 +67,7 @@ class ExploreViewModel
 
   fun changeQuery(newQuery: String){
     query.value = newQuery
+    searchMovies()
   }
 
   fun searchMovies(){
@@ -73,6 +75,7 @@ class ExploreViewModel
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .subscribe({
+        searchedMovies.value = it
         Log.d("TGIW","you searched " + it.toString())
       }, {
         Log.d("TGIW", it.toString())
