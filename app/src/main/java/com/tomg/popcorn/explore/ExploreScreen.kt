@@ -1,6 +1,5 @@
 package com.tomg.popcorn.explore
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,10 +11,13 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -24,7 +26,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rxjava2.subscribeAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,25 +33,25 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
-import com.tomg.popcorn.DrawableInText
-import com.tomg.popcorn.ErrorText
-import com.tomg.popcorn.LoadImageWithUrl
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.tomg.popcorn.composables.DrawableInText
+import com.tomg.popcorn.composables.ErrorText
+import com.tomg.popcorn.composables.LoadImageWithUrl
 import com.tomg.popcorn.MainActivity
 import com.tomg.popcorn.R
 import com.tomg.popcorn.api.Api
-import com.tomg.popcorn.clickAbleModifier
+import com.tomg.popcorn.composables.clickAbleModifier
 import com.tomg.popcorn.db.Favourite
 import com.tomg.popcorn.db.toFavourite
 import com.tomg.popcorn.favourites.FavouriteRow
 import com.tomg.popcorn.ui.theme.Colors
 import com.tomg.popcorn.ui.theme.Fonts
-import java.net.URLEncoder
 
 /** Preview purpose **/
 
@@ -68,13 +69,17 @@ fun ExploreRowPreview() {
 fun ExploreScreen(viewModel: ExploreViewModel, navController: NavController){
   val movieList = viewModel.movieList.value.toList()
   val favourites = viewModel.favourites().subscribeAsState(initial = emptyList()).value
+  val isLoading = viewModel.isLoading.value
 
   val searchedMovies = viewModel.searchedMovies.value
   val query = viewModel.query.value
 
   val focusManager = LocalFocusManager.current
 
-  Column(Modifier.background(Colors.popBlack)) {
+  Column(
+    Modifier
+      .fillMaxSize()
+      .background(Colors.popBlack)) {
     TextField(
       modifier = Modifier
         .fillMaxWidth()
@@ -101,42 +106,45 @@ fun ExploreScreen(viewModel: ExploreViewModel, navController: NavController){
       ),
       keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
     )
-      LazyColumn(modifier = Modifier
-        .fillMaxSize()
-        .background(Colors.popBlack)){
-        if(query.isEmpty()){
-          items(movieList.size){ index ->
-            ExploreRow(
-              list = movieList[index].second,
-              favourites = favourites,
-              header = movieList[index].first,
-              onSave = {
-                if(it.first){
-                  viewModel.saveMovie(it.second)
-                } else {
-                  viewModel.deleteFavourite(it.second)
-                }
-              },
-              onClick = {
-                navController.navigate(MainActivity.Screen.Detail.route.replace("{movieId}", it.id))
-              })
-          }
-        } else {
-          if(searchedMovies.isNotEmpty()){
-            items(searchedMovies.size){ index ->
-              val movie = searchedMovies[index]
-              FavouriteRow(favourite = movie.toFavourite(), favourites.map { it.id }.contains(movie.id.toInt()), callback = {
-                if(favourites.map { it.id }.contains(it.id)){
-                  viewModel.deleteFavourite(movie)
-                } else {
-                  viewModel.saveMovie(movie)
-                }
-              })
-            } 
+      SwipeRefresh(state = rememberSwipeRefreshState(isLoading.second), onRefresh = {
+        viewModel.loadPopularMovies()
+      }) {
+        LazyColumn(modifier = Modifier
+          .fillMaxSize()
+          .background(Colors.popBlack)){
+          if(query.isEmpty()){
+            items(movieList.size){ index ->
+              ExploreRow(
+                list = movieList[index].second,
+                favourites = favourites,
+                header = movieList[index].first,
+                onSave = {
+                  if(it.first){
+                    viewModel.saveMovie(it.second)
+                  } else {
+                    viewModel.deleteFavourite(it.second)
+                  }
+                },
+                onClick = {
+                  navController.navigate(MainActivity.Screen.Detail.route.replace("{movieId}", it.id))
+                })
+            }
           } else {
-            Log.d("TGIW", "show item")
-            item {
-              ErrorText(text = "No result found for \"${query}\".\n try a new search")
+            if(searchedMovies.isNotEmpty()){
+              items(searchedMovies.size){ index ->
+                val movie = searchedMovies[index]
+                FavouriteRow(favourite = movie.toFavourite(), favourites.map { it.id }.contains(movie.id.toInt()), callback = {
+                  if(favourites.map { it.id }.contains(it.id)){
+                    viewModel.deleteFavourite(movie)
+                  } else {
+                    viewModel.saveMovie(movie)
+                  }
+                })
+              }
+            } else {
+              item {
+                ErrorText(text = "No result found for \"${query}\".\n try a new search")
+              }
             }
           }
         }

@@ -1,6 +1,7 @@
 package com.tomg.popcorn.details
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,22 +13,22 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rxjava2.subscribeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.annotation.ExperimentalCoilApi
-import com.tomg.popcorn.FadingBottomBox
-import com.tomg.popcorn.LoadImageWithUrl
+import com.tomg.popcorn.composables.ErrorText
+import com.tomg.popcorn.composables.FadingBottomBox
+import com.tomg.popcorn.composables.LoadImageWithUrl
 import com.tomg.popcorn.R
 import com.tomg.popcorn.explore.ExploreRow
 import com.tomg.popcorn.ui.theme.Colors
@@ -40,80 +41,89 @@ fun DetailScreen(viewModel: DetailViewModel){
   val movie = viewModel.movieDetail.value
   val similarMovies = viewModel.similarMovies.value
   val favourites = viewModel.favourites().subscribeAsState(initial = emptyList()).value
+  val isLoading = viewModel.isLoading.value
   val scrollState = rememberScrollState()
 
   Column(modifier = Modifier
     .fillMaxSize()
     .background(Colors.popBlack)
-    .verticalScroll(scrollState)) {
+    .verticalScroll(scrollState),
+    verticalArrangement = Arrangement.Center) {
 
-    Box(modifier = Modifier.fillMaxWidth()){
-      LoadImageWithUrl(
-        modifier = Modifier
-          .width(LocalConfiguration.current.screenWidthDp.dp)
-          .height(220.dp),
-        url = movie?.backdrop ?: "",
-        saved = favourites.map { it.id }.contains(movie?.id?.toInt())){
-        movie?.let { movie ->
-          if(it){
-            viewModel.saveMovie(movie)
-          } else {
-            viewModel.deleteFavourite(movie)
-          }
-        }
-      }
-      FadingBottomBox(Modifier.align(Alignment.BottomCenter))
+    if(isLoading.second){
+      CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
+    } else {
+       if(isLoading.first != null) {
+        ErrorText(text = "We couldn't load the desired movie.. \n Try again!")
+      } else {
+         Box(modifier = Modifier.fillMaxWidth()){
+           LoadImageWithUrl(
+             modifier = Modifier
+               .width(LocalConfiguration.current.screenWidthDp.dp)
+               .height(220.dp),
+             url = movie?.backdrop ?: "",
+             saved = favourites.map { it.id }.contains(movie?.id?.toInt())){
+             movie?.let { movie ->
+               if(it){
+                 viewModel.saveMovie(movie)
+               } else {
+                 viewModel.deleteFavourite(movie)
+               }
+             }
+           }
+           FadingBottomBox(Modifier.align(Alignment.BottomCenter))
+         }
+
+         Text(text = movie?.title ?: "",
+           fontFamily = Fonts.popFont,
+           fontWeight = FontWeight.W400,
+           fontSize = 22.sp,
+           color = Colors.popWhite,
+           modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)
+         )
+
+         Text(text = "Drama, Fantasy, Sci-fi",
+           fontFamily = Fonts.popFont,
+           fontWeight = FontWeight.W300,
+           fontSize = 12.sp,
+           color = Colors.popGreySpecialDark,
+           modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp)
+         )
+
+         Text(text = movie?.overview ?: "",
+           fontFamily = Fonts.popFont,
+           fontWeight = FontWeight.W300,
+           fontSize = 16.sp,
+           color = Colors.popWhite,
+           modifier = Modifier.padding(start = 16.dp, end = 16.dp)
+         )
+
+         Row(
+           Modifier
+             .fillMaxWidth()
+             .padding(top = 16.dp)) {
+           InformationBox(Modifier.weight(1f), "IMDb RATING", movie?.rating ?: "0.0", "/10")
+           InformationBox(Modifier.weight(1f), "YOUR RATING", "Rate", "")
+           InformationBox(Modifier.weight(1f), "POPULARITY", movie?.votes ?: "0", "")
+         }
+
+         ExploreRow(
+           list = similarMovies,
+           favourites = favourites,
+           header = "Similar movies",
+           onSave = {
+             if(it.first){
+               viewModel.saveMovie(it.second)
+             } else {
+               viewModel.deleteFavourite(it.second)
+             }
+           },
+           onClick = {
+             //TODO:
+           }
+         )
+       }
     }
-
-    Text(text = movie?.title ?: "",
-      fontFamily = Fonts.popFont,
-      fontWeight = FontWeight.W400,
-      fontSize = 22.sp,
-      color = Colors.popWhite,
-      modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)
-    )
-
-    Text(text = "Drama, Fantasy, Sci-fi",
-      fontFamily = Fonts.popFont,
-      fontWeight = FontWeight.W300,
-      fontSize = 12.sp,
-      color = Colors.popGreySpecialDark,
-      modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp)
-    )
-
-    Text(text = movie?.overview ?: "",
-      fontFamily = Fonts.popFont,
-      fontWeight = FontWeight.W300,
-      fontSize = 16.sp,
-      color = Colors.popWhite,
-      modifier = Modifier.padding(start = 16.dp, end = 16.dp)
-    )
-
-    Row(
-      Modifier
-        .fillMaxWidth()
-        .padding(top = 16.dp)) {
-      InformationBox(Modifier.weight(1f), "IMDb RATING", movie?.rating ?: "0.0", "/10")
-      InformationBox(Modifier.weight(1f), "YOUR RATING", "Rate", "")
-      InformationBox(Modifier.weight(1f), "POPULARITY", movie?.votes ?: "0", "")
-    }
-
-    ExploreRow(
-      list = similarMovies,
-      favourites = favourites,
-      header = "Similar movies",
-      onSave = {
-        if(it.first){
-          viewModel.saveMovie(it.second)
-        } else {
-          viewModel.deleteFavourite(it.second)
-        }
-      },
-      onClick = {
-        //TODO:
-      }
-    )
-
   }
 }
 

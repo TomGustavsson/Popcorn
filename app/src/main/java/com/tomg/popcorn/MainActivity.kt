@@ -2,6 +2,7 @@ package com.tomg.popcorn
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -12,13 +13,17 @@ import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
+import androidx.compose.material.SnackbarDuration
 import androidx.compose.material.Text
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -28,6 +33,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import coil.annotation.ExperimentalCoilApi
+import com.tomg.popcorn.composables.CustomSnackBar
+import com.tomg.popcorn.composables.CustomSnackBarHost
 import com.tomg.popcorn.details.DetailScreen
 import com.tomg.popcorn.details.DetailViewModel
 import com.tomg.popcorn.explore.ExploreScreen
@@ -37,13 +44,10 @@ import com.tomg.popcorn.favourites.FavouriteViewModel
 import com.tomg.popcorn.ui.theme.Colors
 import com.tomg.popcorn.ui.theme.PopcornTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-  private val exploreViewModel: ExploreViewModel by viewModels()
-  private val favouriteViewModel: FavouriteViewModel by viewModels()
-  private val detailViewModel: DetailViewModel by viewModels()
 
   @ExperimentalCoilApi
   @SuppressLint("RememberReturnType")
@@ -57,10 +61,29 @@ class MainActivity : ComponentActivity() {
 
     setContent {
       PopcornTheme {
+
+        val scaffoldState = rememberScaffoldState()
         val navController = rememberNavController()
+        val coroutineScope = rememberCoroutineScope()
         val bottomBarState = rememberSaveable { (mutableStateOf(true)) }
+
+        NetworkLiveData(this).observe(this, {
+          coroutineScope.launch {
+            if (!it) {
+              scaffoldState.snackbarHostState.showSnackbar(message = "", duration = SnackbarDuration.Indefinite)
+            } else {
+              scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
+            }
+          }
+        })
+
         Scaffold(
           backgroundColor = Colors.popWhite,
+          snackbarHost = {
+            CustomSnackBarHost(state = it) {
+              CustomSnackBar(text = "No internet connectivity")
+            }
+          },
           bottomBar = {
             if(bottomBarState.value){
               BottomNavigation {
@@ -84,7 +107,8 @@ class MainActivity : ComponentActivity() {
                 }
               }
             }
-          }
+          },
+          scaffoldState = scaffoldState,
         ) { innerPadding ->
 
           NavHost(
@@ -95,6 +119,7 @@ class MainActivity : ComponentActivity() {
             composable(Screen.Explore.route) {
               bottomBarState.value = true
               Box(modifier = Modifier.padding(innerPadding)) {
+                val exploreViewModel = hiltViewModel<ExploreViewModel>()
                 ExploreScreen(exploreViewModel, navController = navController)
               }
             }
@@ -102,6 +127,7 @@ class MainActivity : ComponentActivity() {
             composable(Screen.Favourites.route) {
               bottomBarState.value = true
               Box(modifier = Modifier.padding(innerPadding)) {
+                val favouriteViewModel = hiltViewModel<FavouriteViewModel>()
                 FavouriteScreen(favouriteViewModel)
               }
             }
@@ -110,6 +136,7 @@ class MainActivity : ComponentActivity() {
               Screen.Detail.route,
               arguments = listOf(navArgument("movieId") { type = NavType.StringType })) {
               bottomBarState.value = false
+              val detailViewModel = hiltViewModel<DetailViewModel>()
               it.arguments?.getString("movieId")?.let {
                 detailViewModel.loadMovie(it)
               }

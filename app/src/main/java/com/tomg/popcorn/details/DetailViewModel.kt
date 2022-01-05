@@ -1,6 +1,5 @@
 package com.tomg.popcorn.details
 
-import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -14,6 +13,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,6 +25,7 @@ class DetailViewModel
   val similarMovies: MutableState<List<Api.Movie>> = mutableStateOf(emptyList())
   val movieDetail: MutableState<Api.MovieDetails?> = mutableStateOf(null)
 
+  val isLoading: MutableState<Pair<Throwable?,Boolean>> = mutableStateOf(Pair(null, true))
   fun favourites(): Flowable<List<Favourite>> {
     return movieRepository.favourites()
   }
@@ -36,44 +37,47 @@ class DetailViewModel
       .subscribe({
         similarMovies.value = it.second
         movieDetail.value = it.first
+        Timber.d("Movie successfully loaded.")
+        isLoading.value = Pair(null, false)
       }, {
-        Log.d("TGIW", it.toString())
+        Timber.e(it,"Error loading movie.")
+        isLoading.value = Pair(it, false)
       })
   }
 
   fun saveMovie(movie: Api.MovieDetails){
     disposables += movieRepository.saveMovie(movie.toFavourite())
       .subscribe({
-        Log.d("TGIW", "favourite was added..")
+        Timber.d("Movie successfully saved.")
       }, {
-        Log.d("TGIW", it.toString())
+        Timber.e(it,"Error saving movie.")
       })
   }
 
   fun saveMovie(movie: Api.Movie){
     disposables += movieRepository.saveMovie(movie.toFavourite())
       .subscribe({
-        Log.d("TGIW", "favourite was added..")
+        Timber.d("Movie successfully saved.")
       }, {
-        Log.d("TGIW", it.toString())
+        Timber.e(it,"Error saving movie.")
       })
   }
 
   fun deleteFavourite(movie: Api.MovieDetails){
     disposables += movieRepository.deleteFavourite(movie.toFavourite())
       .subscribe({
-        Log.d("TGIW", "favourite was deleted..")
+        Timber.d("Movie successfully deleted.")
       }, {
-        Log.d("TGIW", it.toString())
+        Timber.e(it,"Error deleting movie.")
       })
   }
 
   fun deleteFavourite(movie: Api.Movie){
     disposables += movieRepository.deleteFavourite(movie.toFavourite())
       .subscribe({
-        Log.d("TGIW", "favourite was deleted..")
+        Timber.d("Movie successfully deleted.")
       }, {
-        Log.d("TGIW", it.toString())
+        Timber.e(it,"Error deleting movie.")
       })
   }
 
